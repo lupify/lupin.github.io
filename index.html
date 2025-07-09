@@ -23,6 +23,14 @@
             text-align: center;
             margin-bottom: 30px;
         }
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
         .file-links {
             display: flex;
             flex-direction: column;
@@ -42,34 +50,64 @@
         .file-link:hover {
             background-color: #0056b3;
         }
+        .file-link.large {
+            background-color: #dc3545;
+        }
+        .file-link.large:hover {
+            background-color: #c82333;
+        }
         .file-info {
             font-size: 0.9em;
             color: #666;
             margin-top: 5px;
+        }
+        .github-link {
+            display: block;
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 10px;
+            text-align: center;
+            font-size: 0.9em;
+        }
+        .github-link:hover {
+            background-color: #218838;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Grids Data Files</h1>
+        
+        <div class="warning">
+            <strong>Note:</strong> Some files are very large and may not load properly in the browser. 
+            For large files, consider downloading them directly or viewing them on GitHub.
+        </div>
+        
         <div class="file-links">
             <a href="grids_shuffle-True_max-1000000/words.txt" class="file-link" target="_blank">
                 words.txt
-                <div class="file-info">5.7KB - Word list data</div>
+                <div class="file-info">5.7KB - Word list data (Safe to view)</div>
             </a>
-            <a href="grids_shuffle-True_max-1000000/grids_scores.txt" class="file-link" target="_blank">
+            <a href="grids_shuffle-True_max-1000000/grids_scores.txt" class="file-link large" target="_blank">
                 grids_scores.txt
-                <div class="file-info">18MB - Grid scores data</div>
+                <div class="file-info">18MB - Grid scores data (Large file - may be slow)</div>
             </a>
-            <a href="grids_shuffle-True_max-1000000/grids_idx.txt" class="file-link" target="_blank">
+            <a href="grids_shuffle-True_max-1000000/grids_idx.txt" class="file-link large" target="_blank">
                 grids_idx.txt
-                <div class="file-info">38MB - Grid index data</div>
+                <div class="file-info">38MB - Grid index data (Large file - may be slow)</div>
             </a>
-            <a href="grids_shuffle-True_max-1000000/grids.txt" class="file-link" target="_blank">
+            <a href="grids_shuffle-True_max-1000000/grids.txt" class="file-link large" target="_blank">
                 grids.txt
-                <div class="file-info">49MB - Grid data</div>
+                <div class="file-info">49MB - Grid data (Large file - may be slow)</div>
             </a>
         </div>
+        
+        <a href="https://github.com/lupify/lupin.github.io/tree/main/grids_shuffle-True_max-1000000" class="github-link" target="_blank">
+            View files on GitHub (recommended for large files)
+        </a>
     </div>
 </body>
 </html>
