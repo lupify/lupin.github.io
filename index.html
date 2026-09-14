@@ -1,57 +1,169 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lupin site</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #2a2a2a;
-            color: white;
-        }
-        .container {
-            background-color: #3a3a3a;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            text-align: center;
-            color: white;
-        }
-        h1 {
-            color: white;
-            margin-bottom: 20px;
-        }
-        .status {
-            background-color: #d4edda;
-            border: 1px solid #c3e6cb;
-            color: #155724;
-            padding: 15px;
-            border-radius: 5px;
-            margin-top: 20px;
-        }
-        .nav-link {
-            display: inline-block;
-            padding: 12px 24px;
-            background-color: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            margin-top: 20px;
-            transition: background-color 0.3s;
-        }
-        .nav-link:hover {
-            background-color: #0056b3;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lenny Lupin-Jimenez</title>
+<meta name="description" content="Lenny Lupin-Jimenez &mdash; PhD student in Applied Mathematics at UC Santa Cruz, building physically consistent deep learning emulators for complex, time-dependent systems.">
+<meta name="color-scheme" content="dark light">
+
+<!-- Set the theme before first paint: stored choice > system preference > dark. -->
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem('theme');
+      if (stored === 'light' || stored === 'dark') {
+        document.documentElement.dataset.theme = stored;
+        return;
+      }
+      var mq = window.matchMedia('(prefers-color-scheme: light)');
+      document.documentElement.dataset.theme = mq.matches ? 'light' : 'dark';
+    } catch (e) {
+      document.documentElement.dataset.theme = 'dark';
+    }
+  })();
+
+  // Animation preference: an explicit choice wins, otherwise follow the system
+  // reduced-motion setting, otherwise on.
+  (function () {
+    var v = 'on';
+    try {
+      var stored = localStorage.getItem('anim');
+      if (stored === 'on' || stored === 'off') v = stored;
+      else if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) v = 'off';
+    } catch (e) {}
+    document.documentElement.dataset.anim = v;
+  })();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Lupin site</h1>
-        <p>Hi! My name is Lenny. I am a physics and complex systems ml researcher based in Santa Cruz. In my free time, I enjoy hiking, listening to music, and hosting events in and out of the Bay Area.</p>
+
+<canvas id="field" aria-hidden="true"></canvas>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="topbar" id="topbar">
+  <div class="wrap topbar__inner">
+    <nav class="nav" aria-label="Sections">
+      <a href="#work">Work</a>
+      <a href="research.html">Research</a>
+      <a href="projects.html">Projects</a>
+    </nav>
+    <button class="toggle" id="motion-toggle" type="button" aria-label="Pause background animation">
+      <svg class="i-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+        <path d="M9.5 5v14M14.5 5v14"/>
+      </svg>
+      <svg class="i-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M8 5.2v13.6a.6.6 0 0 0 .92.5l10.5-6.8a.6.6 0 0 0 0-1l-10.5-6.8A.6.6 0 0 0 8 5.2z"/>
+      </svg>
+    </button>
+    <button class="toggle" id="theme-toggle" type="button" aria-label="Switch color theme">
+      <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/>
+      </svg>
+      <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<main id="main">
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="wrap">
+    <h1 class="visually-hidden">Lenny Lupin-Jimenez</h1>
+
+    <p class="lead">
+      Hi, I'm Lenny. I'm a PhD student in <strong>Applied Mathematics</strong> at UC Santa Cruz,
+      building physically consistent deep learning emulators for complex, time-dependent systems.
+      My work spans turbulence and ocean&ndash;atmosphere modeling, generative data assimilation,
+      and equation discovery. I also apply these pipelines to other complex system modeling to
+      recapture physically consistent behavior, in ways that maintain partial mechanistic
+      interpretability.
+    </p>
+
+    <p class="lead lead--muted">
+      Outside of research, I play volleyball, hike, practice sitar, and listen to new music.
+    </p>
+
+    <div class="links">
+      <a class="btn btn--primary" href="mailto:lupified@gmail.com">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="m3 7 9 6 9-6"/></svg>
+        lupified@gmail.com
+      </a>
+      <a class="btn" href="https://www.linkedin.com/in/leonard-lupin-jimenez/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4v11H3v-11zm7 0h3.83v1.5h.05c.53-.95 1.83-1.95 3.77-1.95 4.03 0 4.78 2.49 4.78 5.73v5.72h-4v-5.07c0-1.21-.02-2.77-1.79-2.77-1.79 0-2.07 1.32-2.07 2.68v5.16h-4v-11z"/></svg>
+        LinkedIn
+      </a>
+      <a class="btn" href="https://github.com/lupify" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1.7a10.3 10.3 0 0 0-3.26 20.07c.52.1.71-.22.71-.5v-1.9c-2.87.63-3.48-1.22-3.48-1.22-.47-1.2-1.15-1.52-1.15-1.52-.94-.64.07-.63.07-.63 1.04.08 1.59 1.07 1.59 1.07.92 1.59 2.42 1.13 3.01.86.09-.67.36-1.13.66-1.39-2.29-.26-4.7-1.15-4.7-5.1 0-1.13.4-2.05 1.06-2.77-.11-.26-.46-1.3.1-2.72 0 0 .87-.28 2.85 1.06a9.8 9.8 0 0 1 5.18 0c1.98-1.34 2.85-1.06 2.85-1.06.56 1.42.21 2.46.1 2.72.66.72 1.06 1.64 1.06 2.77 0 3.96-2.42 4.83-4.72 5.09.37.32.7.95.7 1.92v2.85c0 .28.19.61.72.5A10.3 10.3 0 0 0 12 1.7z"/></svg>
+        GitHub
+      </a>
     </div>
+
+    <div class="chips">
+      <span class="chip"><b>PhD</b> Applied Mathematics &mdash; UC Santa Cruz</span>
+      <span class="chip"><b>MS</b> Physics &mdash; San Francisco State</span>
+      <span class="chip"><b>BS</b> Physics &mdash; Stanford</span>
+    </div>
+  </div>
+</header>
+
+<!-- ============ SELECTED WORK ============ -->
+<section class="section" id="work">
+  <div class="wrap">
+    <div class="section__head reveal">
+      <h2>Current work</h2>
+      <span class="rule"></span>
+      <a class="count" href="research.html">Other research &rarr;</a>
+    </div>
+
+    <div class="cards">
+      <article class="card reveal">
+        <p class="card__meta">2026 &middot; Los Alamos National Laboratory</p>
+        <h3>Multimodal kilonova detection</h3>
+        <p class="excerpt">A live pipeline for identifying kilonova events in survey telescope data, fusing multimodal streams to catch rare transients as they happen.</p>
+      </article>
+      <article class="card reveal">
+        <p class="card__meta">2025 &middot; UC Santa Cruz</p>
+        <h3>Generative data assimilation under extreme sparsity</h3>
+        <p class="excerpt">Reconstructing full ocean and turbulence states from satellite and Lagrangian observations at up to 99.9% sparsity, by conditioning diffusion models on neural operator outputs.</p>
+        <div class="card__foot">
+          <a href="https://iopscience.iop.org/article/10.1088/3049-4753/ae0b70" target="_blank" rel="noopener">Machine Learning: Earth</a>
+          <a href="https://arxiv.org/abs/2507.06479" target="_blank" rel="noopener">arXiv</a>
+        </div>
+      </article>
+      <article class="card reveal">
+        <p class="card__meta">2024&ndash;2025 &middot; Fujitsu Research of America</p>
+        <h3>Physically consistent regional ocean emulation</h3>
+        <p class="excerpt">Autoregressive emulation of Gulf of Mexico sea-surface dynamics, where a spectral loss holds decade-long rollouts stable, with a generative model downscaling to 4&nbsp;km in the same step.</p>
+        <div class="card__foot">
+          <a href="https://agupubs.onlinelibrary.wiley.com/doi/10.1029/2025JH000851" target="_blank" rel="noopener">JGR: ML &amp; Computation</a>
+          <a href="https://arxiv.org/abs/2501.05058" target="_blank" rel="noopener">arXiv</a>
+        </div>
+      </article>
+    </div>
+
+    <p class="pagelink"><a href="research.html">Other research selections &rarr;</a></p>
+  </div>
+</section>
+
+<div class="wrap">
+  <footer>
+    <span>Hosted on GitHub Pages</span>
+  </footer>
+</div>
+
+</main>
+
+<script src="site.js" defer></script>
+<script src="background.js?v=20" defer></script>
 </body>
-</html> 
+</html>

@@ -1,0 +1,323 @@
+/* ---------- tokens ---------- */
+:root {
+  --bg:          #faf6f5;
+  --bg-veil:     rgba(250, 246, 245, .78);
+  --surface:     #ffffff;
+  --surface-2:   #f4eeed;
+  --line:        #e6dcdb;
+  --line-strong: #d6c8c8;
+  --text:        #241d26;
+  /* Darkened from #6d6274, which sat at 5.36:1 on the page white -- barely over
+     AA and leaving no room for anything behind it. At 7.44:1 the glow below can
+     be brighter than before and still leave muted text more legible than it was. */
+  --muted:       #574d5e;
+  --accent:      #8f2d45;
+  --accent-2:    #5c3d8f;
+  --accent-wash: rgba(143, 45, 69, .09);
+  /* A near-white page loses luminance fast under a dark tint, so the light glow
+     is a light, highly saturated one: it shifts hue rather than brightness and
+     carries 1.7x the colour of the old maroon at better contrast. Each gradient
+     ends on its own hue at zero alpha -- fading to `transparent` interpolates
+     through transparent black and dirties the ramp. */
+  --glow-a:      rgba(240, 138, 168, .30);
+  --glow-a0:     rgba(240, 138, 168, 0);
+  --glow-b:      rgba(171, 142, 232, .30);
+  --glow-b0:     rgba(171, 142, 232, 0);
+  --grain:       .022;
+  --shadow:      0 1px 2px rgba(36,29,38,.05), 0 14px 34px -20px rgba(36,29,38,.35);
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-serif: "Newsreader", ui-serif, Georgia, "Times New Roman", serif;
+  --measure: 68ch;
+  --pad: clamp(1.1rem, 5vw, 2.5rem);
+}
+
+:root[data-theme="dark"] {
+  --bg:          #17141b;
+  --bg-veil:     rgba(23, 20, 27, .72);
+  --surface:     #201c28;
+  --surface-2:   #272131;
+  --line:        #342d40;
+  --line-strong: #453c54;
+  --text:        #ece6f0;
+  --muted:       #a89eb5;
+  --accent:      #d4697f;
+  --accent-2:    #ab8ede;
+  --accent-wash: rgba(212, 105, 127, .12);
+  --glow-a:      rgba(143, 45, 69, .38);
+  --glow-a0:     rgba(143, 45, 69, 0);
+  --glow-b:      rgba(92, 61, 143, .30);
+  --glow-b0:     rgba(92, 61, 143, 0);
+  --grain:       .035;
+  --shadow:      0 1px 2px rgba(0,0,0,.3), 0 18px 40px -22px rgba(0,0,0,.8);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]):not([data-theme="light"]) { color-scheme: light; }
+}
+
+/* ---------- background field ---------- */
+#field {
+  position: fixed; inset: 0;
+  width: 100%; height: 100%;
+  z-index: -2;
+  pointer-events: none;
+  /* The blur radius is set from JS, in units of one simulation cell. Blurring
+     shrinks the painted area inward from the edges, so the canvas is inset
+     slightly beyond the viewport to keep the edges covered. */
+  margin: -3vmax;
+  width: calc(100% + 6vmax);
+  height: calc(100% + 6vmax);
+}
+
+/* ---------- base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+a { color: var(--accent); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+a:hover { color: var(--text); }
+:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 3px; border-radius: 3px; }
+
+h1, h2, h3 { font-family: var(--font-serif); font-weight: 500; line-height: 1.15; margin: 0; letter-spacing: -.015em; }
+
+.wrap { width: min(100%, 62rem); margin-inline: auto; padding-inline: var(--pad); }
+
+.skip {
+  position: absolute; left: -9999px; top: 0;
+  background: var(--surface); color: var(--text);
+  padding: .6rem 1rem; border-radius: 8px; z-index: 100;
+}
+.skip:focus { left: 1rem; top: 1rem; }
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px;
+  margin: -1px; padding: 0; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+
+/* ---------- top bar ---------- */
+.topbar {
+  position: sticky; top: 0; z-index: 20;
+  background: var(--bg-veil);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid transparent;
+  transition: border-color .3s ease;
+}
+.topbar[data-stuck="true"] { border-bottom-color: var(--line); }
+.topbar__inner {
+  display: flex; align-items: center; justify-content: flex-end; gap: .6rem;
+  min-height: 3.85rem;
+}
+
+.nav { display: flex; gap: .25rem; }
+.nav a {
+  color: var(--muted); text-decoration: none;
+  font-size: .84rem; letter-spacing: .04em; text-transform: uppercase;
+  padding: .45rem .6rem; border-radius: 7px;
+  transition: color .18s ease, background-color .18s ease;
+}
+.nav a:hover { color: var(--text); background: var(--accent-wash); }
+
+.toggle {
+  display: grid; place-items: center;
+  width: 2.3rem; height: 2.3rem; flex: none; margin-left: .35rem;
+  border: 1px solid var(--line); border-radius: 999px;
+  background: var(--surface); color: var(--muted);
+  cursor: pointer;
+  transition: color .18s ease, border-color .18s ease, transform .18s ease;
+}
+.toggle:hover { color: var(--accent); border-color: var(--line-strong); transform: rotate(-12deg); }
+.toggle svg { width: 1.02rem; height: 1.02rem; }
+:root[data-anim="on"]  .toggle .i-pause { display: block; }
+:root[data-anim="on"]  .toggle .i-play  { display: none; }
+:root[data-anim="off"] .toggle .i-pause { display: none; }
+:root[data-anim="off"] .toggle .i-play  { display: block; }
+#motion-toggle:hover { transform: none; }
+
+:root[data-theme="dark"] .toggle .i-sun { display: block; }
+:root[data-theme="dark"] .toggle .i-moon { display: none; }
+:root[data-theme="light"] .toggle .i-sun { display: none; }
+:root[data-theme="light"] .toggle .i-moon { display: block; }
+
+/* ---------- hero ---------- */
+.hero { position: relative; padding-block: clamp(2.5rem, 8vw, 4.5rem) clamp(2.5rem, 7vw, 4.5rem); }
+
+/* The glow belongs to the page, not to the hero: anchored to a box whose height
+   changes from page to page it landed differently on each, and its lower edge
+   could cut off mid-fade. This is one band across the top of the document,
+   identical everywhere. */
+body::before {
+  content: "";
+  position: absolute; inset: 0 0 auto 0;
+  height: clamp(26rem, 62vh, 46rem);
+  background:
+    radial-gradient(58rem 34rem at 14% -4%, var(--glow-a), var(--glow-a0) 70%),
+    radial-gradient(50rem 30rem at 86% -10%, var(--glow-b), var(--glow-b0) 72%);
+  pointer-events: none; z-index: -1;
+}
+
+/* A wide, smooth alpha ramp cannot be represented in 8-bit colour, so it steps
+   into visible rings -- the banding across the top of the page. Faint
+   monochrome noise over the top dithers those steps away. It is far too weak to
+   read as texture; it is what makes the gradient look continuous. */
+body::after {
+  content: "";
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: var(--grain);
+  pointer-events: none; z-index: -1;
+}
+.lead { font-size: clamp(1.04rem, 2.2vw, 1.16rem); max-width: var(--measure); margin: 0 0 1.1rem; }
+.lead--muted { color: var(--muted); }
+.lead strong { font-weight: 500; color: var(--text); box-shadow: inset 0 -.42em 0 var(--accent-wash); }
+
+.chips { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 2rem; }
+.chip {
+  font-size: .8rem; color: var(--muted);
+  border: 1px solid var(--line); border-radius: 999px;
+  padding: .3rem .8rem; background: var(--surface);
+}
+.chip b { font-weight: 500; color: var(--text); }
+
+.links { display: flex; flex-wrap: wrap; gap: .55rem; margin-top: 1.6rem; }
+.btn {
+  display: inline-flex; align-items: center; gap: .45rem;
+  font-size: .88rem; text-decoration: none;
+  padding: .52rem 1rem; border-radius: 9px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--text);
+  box-shadow: var(--shadow);
+  transition: border-color .18s ease, transform .18s ease, color .18s ease;
+}
+.btn:hover { color: var(--accent); border-color: var(--accent); transform: translateY(-1px); }
+.btn--primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn--primary:hover { color: #fff; filter: brightness(1.08); }
+:root[data-theme="dark"] .btn--primary { color: #1b1016; }
+:root[data-theme="dark"] .btn--primary:hover { color: #1b1016; }
+.btn svg { width: .95rem; height: .95rem; flex: none; }
+
+/* ---------- sections ---------- */
+section { scroll-margin-top: 5rem; }
+.section { padding-block: clamp(2.75rem, 7vw, 4.5rem); }
+.section__head { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 2.5rem; }
+.section__head h2 { font-size: clamp(1.55rem, 4vw, 2.1rem); white-space: nowrap; }
+.section__head .rule { flex: 1; height: 1px; background: linear-gradient(90deg, var(--line-strong), transparent); }
+.section__head .count { font-size: .8rem; color: var(--muted); letter-spacing: .08em; }
+
+/* ---------- research timeline ---------- */
+.entries { display: flex; flex-direction: column; gap: 2.5rem; }
+.entry { display: grid; grid-template-columns: 9.5rem 1fr; gap: 1.75rem; }
+.entry__rail { position: relative; padding-top: .28rem; }
+.entry__years { font-size: .82rem; color: var(--accent-2); letter-spacing: .04em; font-variant-numeric: tabular-nums; }
+.entry__place { display: block; font-size: .8rem; color: var(--muted); margin-top: .15rem; }
+.entry__body { position: relative; padding-left: 1.75rem; border-left: 1px solid var(--line); }
+.entry__body::before {
+  content: ""; position: absolute; left: -4.5px; top: .62rem;
+  width: 8px; height: 8px; border-radius: 999px;
+  background: var(--accent); box-shadow: 0 0 0 4px var(--bg);
+}
+.entry h3 { font-size: 1.3rem; margin-bottom: .3rem; }
+.entry__org { font-size: .89rem; color: var(--muted); margin: 0 0 .8rem; }
+.entry__org b { font-weight: 500; color: var(--text); }
+.entry p.desc { margin: 0; max-width: var(--measure); }
+
+.papers { list-style: none; margin: 1.1rem 0 0; padding: 0; display: flex; flex-direction: column; gap: .55rem; }
+.paper {
+  display: block; text-decoration: none; color: inherit;
+  border: 1px solid var(--line); border-left: 2px solid var(--line-strong);
+  border-radius: 4px 10px 10px 4px;
+  background: var(--surface);
+  padding: .75rem .95rem;
+  transition: border-color .18s ease, background-color .18s ease, transform .18s ease;
+}
+.paper:hover { border-left-color: var(--accent); background: var(--surface-2); transform: translateX(2px); }
+.paper__title { font-family: var(--font-serif); font-size: 1.02rem; line-height: 1.35; display: block; }
+.paper:hover .paper__title { color: var(--accent); }
+.paper__authors { display: block; font-size: .82rem; color: var(--muted); margin-top: .3rem; }
+.paper__authors b { color: var(--text); font-weight: 600; }
+.paper__meta { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; margin-top: .5rem; }
+.tag {
+  font-size: .71rem; letter-spacing: .05em; text-transform: uppercase;
+  color: var(--muted); border: 1px solid var(--line); border-radius: 5px; padding: .12rem .45rem;
+}
+.tag--venue { color: var(--accent-2); border-color: currentColor; opacity: .9; }
+
+@media (max-width: 760px) {
+  .entry { grid-template-columns: 1fr; gap: .7rem; }
+  .entry__rail { padding-top: 0; }
+  .entry__place { display: inline; margin-left: .5rem; }
+  .entry__body { padding-left: 1.1rem; }
+}
+
+/* ---------- contact ---------- */
+.contact {
+  border: 1px solid var(--line); border-radius: 16px;
+  background: var(--surface);
+  padding: clamp(1.5rem, 5vw, 2.5rem);
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem;
+}
+.contact h2 { font-size: 1.6rem; margin-bottom: .4rem; }
+.contact p { margin: 0; color: var(--muted); max-width: 38ch; }
+
+footer {
+  border-top: 1px solid var(--line);
+  margin-top: clamp(3rem, 8vw, 5rem);
+  padding-block: 1.75rem 2.5rem;
+  font-size: .82rem; color: var(--muted);
+  display: flex; flex-wrap: wrap; gap: .75rem;
+}
+
+/* ---------- reveal ---------- */
+.reveal { opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .6s ease; }
+.reveal.is-in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; } }
+
+/* ---------- selected work cards ---------- */
+.cards { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); }
+.card {
+  position: relative; overflow: hidden;
+  border: 1px solid var(--line); border-radius: 14px;
+  background: var(--surface); padding: 1.4rem;
+  display: flex; flex-direction: column; gap: .5rem;
+  transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+.card::after {
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  opacity: 0; transition: opacity .2s ease;
+}
+.card:hover { transform: translateY(-3px); border-color: var(--line-strong); box-shadow: var(--shadow); }
+.card:hover::after { opacity: 1; }
+.card__meta { margin: 0; font-size: .78rem; letter-spacing: .05em; text-transform: uppercase; color: var(--accent-2); }
+.card h3 { font-size: 1.12rem; line-height: 1.25; }
+.card p.excerpt { margin: 0; font-size: .93rem; color: var(--muted); }
+.card__foot { margin-top: auto; padding-top: .7rem; display: flex; flex-wrap: wrap; gap: .4rem; }
+.card__foot a {
+  font-size: .78rem; text-decoration: none; color: var(--muted);
+  border: 1px solid var(--line); border-radius: 6px; padding: .2rem .55rem;
+  transition: color .18s ease, border-color .18s ease;
+}
+.card__foot a:hover { color: var(--accent); border-color: var(--accent); }
+
+.section__head a.count { text-decoration: none; white-space: nowrap; }
+.section__head a.count:hover { color: var(--accent); }
+
+.pagelink { display: inline-flex; align-items: center; gap: .4rem; margin-top: 1.75rem; font-size: .92rem; }
+
+
+.card__tags { margin: .25rem 0 0; display: flex; flex-wrap: wrap; gap: .35rem; }
