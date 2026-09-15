@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Projects &mdash; Lenny Lupin-Jimenez</title>
-<meta name="description" content="Things Lenny Lupin-Jimenez builds outside of research &mdash; 3D-printable electron orbitals and other side projects.">
+<title>Resume &mdash; Lenny Lupin-Jimenez</title>
+<meta name="description" content="Curriculum vitae of Lenny Lupin-Jimenez.">
 <meta name="color-scheme" content="dark light">
 
 <!-- Set the theme before first paint: stored choice > system preference > dark. -->
@@ -52,7 +52,7 @@
     <nav class="nav" aria-label="Sections">
       <a href="index.html">Home</a>
       <a href="research.html">Research</a>
-      <a href="#projects">Projects</a>
+      <a href="projects.html">Projects</a>
       <a href="resume.html">Resume</a>
     </nav>
     <label class="simpick">
@@ -88,36 +88,31 @@
 
 <header class="hero">
   <div class="wrap">
-    <h1>Projects</h1>
+    <h1>Resume</h1>
+    <div class="links" style="margin-top:1.5rem">
+      <a class="btn btn--primary" href="files/LeonardLupin-Jimenez_CV.pdf" download>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-4.5-4.5M12 15l4.5-4.5M4 19h16"/></svg>
+        Download PDF
+      </a>
+      <a class="btn" href="files/LeonardLupin-Jimenez_CV.pdf" target="_blank" rel="noopener">Open in a new tab</a>
+    </div>
   </div>
 </header>
 
-<section class="section" id="projects">
+<section class="section" id="resume">
   <div class="wrap">
-    <div class="cards">
-      <article class="card reveal">
-        <p class="card__meta">2025</p>
-        <h3>Electron orbital STL generator</h3>
-        <p class="excerpt">Solves the hydrogen wavefunction for any valid set of quantum numbers (<i>n</i>, <i>l</i>, <i>m</i>) and turns the result into a 3D-printable solid. Isosurfaces of the real part of the wavefunction, with optional Gaussian smoothing, automatic scaling for the print bed, quantum-number labels and an &Aring;ngstr&ouml;m scale bar. The printed models come out print-in-place, on a base.</p>
-        <p class="card__tags"><span class="tag">Python</span> <span class="tag">PyVista</span> <span class="tag">SciPy</span> <span class="tag">3D printing</span></p>
-        <div class="card__foot">
-          <a href="https://github.com/lupify/orbital_stl" target="_blank" rel="noopener">Source</a>
-          <a href="https://makerworld.com/en/models/965676-atom-orbitals-electron" target="_blank" rel="noopener">Model on MakerWorld</a>
-          <a href="https://makerworld.com/en/@lupify" target="_blank" rel="noopener">MakerWorld profile</a>
-        </div>
-      </article>
-      <article class="card reveal">
-        <p class="card__meta">2026</p>
-        <h3>Conway's Game of Life, 2D + 1 &rarr; 3D</h3>
-        <p class="excerpt">Turns the time axis of Conway's two-dimensional Game of
-           Life into a third spatial dimension that can be 3D printed. Live cells become
-           parts on a cubic lattice, and struts bridge each generation to the next.</p>
-        <p class="card__tags"><span class="tag">Python</span> <span class="tag">Cellular automata</span> <span class="tag">3D printing</span></p>
-        <div class="card__foot">
-          <a href="https://github.com/lupify/conway3d" target="_blank" rel="noopener">Source</a>
-        </div>
-      </article>
-    </div>
+    <!-- Rendered inline by the browser's own PDF viewer. The content inside the
+         object is what shows when it cannot do that, which is the case on some
+         mobile browsers, so it has to be a usable fallback rather than a note. -->
+    <object class="pdf" data="files/LeonardLupin-Jimenez_CV.pdf#view=FitH"
+            type="application/pdf" aria-label="Curriculum vitae">
+      <div class="pdf__fallback">
+        <p>This browser will not display a PDF inline.</p>
+        <p class="links" style="justify-content:center">
+          <a class="btn btn--primary" href="files/LeonardLupin-Jimenez_CV.pdf" target="_blank" rel="noopener">Open the CV</a>
+        </p>
+      </div>
+    </object>
   </div>
 </section>
 
