@@ -147,9 +147,20 @@ h1, h2, h3 { font-family: var(--font-serif); font-weight: 500; line-height: 1.15
 }
 .nav a:hover { color: var(--text); background: var(--accent-wash); }
 
+/* A hairline between groups in the toolbar: the pages, the background control,
+   and the two round buttons. */
+.bar {
+  width: 1px; height: 1.15rem; flex: none;
+  background: var(--line-strong);
+  margin-inline: .15rem;
+}
+
 /* Simulation picker.  Sized and coloured like the round toggles beside it so
    the toolbar reads as one group. */
-.simpick { display: inline-flex; align-items: center; }
+.simpick { display: inline-flex; align-items: center; gap: .45rem; }
+.simpick__label {
+  font-size: .78rem; letter-spacing: .02em; color: var(--muted); white-space: nowrap;
+}
 .simpick select {
   appearance: none; -webkit-appearance: none;
   font: inherit; font-size: .78rem; letter-spacing: .02em;
@@ -167,7 +178,11 @@ h1, h2, h3 { font-family: var(--font-serif); font-weight: 500; line-height: 1.15
 .simpick select option { color: var(--text); background: var(--surface); }
 @media (max-width: 620px) {
   .simpick select { font-size: .74rem; padding: .34rem 1.5rem .34rem .7rem; }
+  .simpick__label { font-size: .72rem; }
   .nav a { padding: .4rem .45rem; }
+  /* the toolbar wraps at this width, which puts the dividers in the wrong
+     places, so they go rather than mislead */
+  .bar { display: none; }
 }
 
 .toggle {
