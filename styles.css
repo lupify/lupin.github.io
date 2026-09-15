@@ -146,6 +146,11 @@ h1, h2, h3 { font-family: var(--font-serif); font-weight: 500; line-height: 1.15
   transition: color .18s ease, background-color .18s ease;
 }
 .nav a:hover { color: var(--text); background: var(--accent-wash); }
+.nav a[aria-current="page"] {
+  color: var(--text);
+  background: var(--accent-wash);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
 
 /* A hairline between groups in the toolbar: the pages, the background control,
    and the two round buttons. */

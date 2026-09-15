@@ -99,6 +99,22 @@
   }
   initReveals();
 
+  // Mark whichever page is showing.  aria-current is the attribute a screen
+  // reader announces for this, and the stylesheet hangs off it, so one
+  // assignment covers both.  It has to be re-applied after a soft navigation,
+  // which swaps the whole nav out.
+  function markCurrentPage() {
+    // "/" and "/index.html" are the same page; normalise before comparing
+    var here = location.pathname.replace(/\/(index\.html)?$/, '/');
+    var links = document.querySelectorAll('nav.nav a');
+    Array.prototype.forEach.call(links, function (a) {
+      var there = new URL(a.href, location.href).pathname.replace(/\/(index\.html)?$/, '/');
+      if (there === here) a.setAttribute('aria-current', 'page');
+      else a.removeAttribute('aria-current');
+    });
+  }
+  markCurrentPage();
+
   // ---- soft navigation ---------------------------------------------------
   //
   // The background canvas and this script live outside <main>, and every page
@@ -186,6 +202,7 @@
         if (push) history.pushState({ soft: true }, '', url);
         window.scrollTo(0, 0);
         initReveals();
+        markCurrentPage();
         trackPageview();          // the provider's own script only sees the first load
       })
       .catch(function (err) {
