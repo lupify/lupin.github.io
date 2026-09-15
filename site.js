@@ -227,4 +227,58 @@
   });
 
   window.addEventListener('popstate', function () { swapTo(location.href, false); });
+
+  // ---- smooth wheel scrolling --------------------------------------------
+  //
+  // CSS scroll-behavior only smooths programmatic and anchor jumps; a mouse
+  // wheel is a sequence of discrete notches and the browser applies each one
+  // instantly.  Easing toward a target position instead is the only way to
+  // smooth it, which means taking the wheel over.
+  //
+  // Two things it deliberately does not touch.  Trackpads already send fine
+  // pixel deltas with their own momentum, so smoothing them again feels
+  // sluggish -- anything that looks like a trackpad is left to the browser.
+  // And keyboard paging, Home/End, the scrollbar and anchor links are all
+  // untouched, because those are scroll positions the browser sets directly
+  // and this only resyncs to them.
+  var SMOOTH_WHEEL = true;
+  var WHEEL_EASE = 0.18;          // fraction of the remaining distance per frame
+  var reduceMotion = false;
+  try {
+    reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  } catch (e) {}
+
+  if (SMOOTH_WHEEL && !reduceMotion) {
+    var wheelTarget = window.scrollY, wheelRaf = 0;
+
+    function maxScroll() {
+      return Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    }
+
+    function wheelStep() {
+      var cur = window.scrollY, d = wheelTarget - cur;
+      if (Math.abs(d) < 0.5) { wheelRaf = 0; window.scrollTo(0, wheelTarget); return; }
+      window.scrollTo(0, cur + d * WHEEL_EASE);
+      wheelRaf = requestAnimationFrame(wheelStep);
+    }
+
+    window.addEventListener('wheel', function (e) {
+      if (e.ctrlKey || e.defaultPrevented) return;          // pinch zoom
+      // deltaMode 1 is lines (a mouse); mode 0 with a big jump is also a mouse.
+      // Small pixel deltas mean a trackpad, which is already smooth.
+      var isMouse = e.deltaMode === 1 || Math.abs(e.deltaY) >= 50;
+      if (!isMouse) { wheelTarget = window.scrollY; return; }
+
+      e.preventDefault();
+      var delta = e.deltaY * (e.deltaMode === 1 ? 16 : 1);
+      wheelTarget = Math.min(Math.max(wheelTarget + delta, 0), maxScroll());
+      if (!wheelRaf) wheelRaf = requestAnimationFrame(wheelStep);
+    }, { passive: false });
+
+    // Anything that moves the page by other means -- keys, the scrollbar, an
+    // anchor, a soft navigation -- becomes the new starting point.
+    window.addEventListener('scroll', function () {
+      if (!wheelRaf) wheelTarget = window.scrollY;
+    }, { passive: true });
+  }
 })();
