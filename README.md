@@ -60,5 +60,5 @@ luminance, not saturation, so the tints are light but strongly saturated.
 
 Press `m` to cycle what is drawn; `#debug` shows a live readout, and
 `#convection`, `#shallow`, `#life` or `#turbulence` force one. The toolbar
-button controls whether anything animates, defaulting to off when the system
-asks for reduced motion.
+button controls whether anything animates. It runs by default and the choice is
+remembered per visitor.

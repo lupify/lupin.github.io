@@ -23,14 +23,13 @@
     }
   })();
 
-  // Animation preference: an explicit choice wins, otherwise follow the system
-  // reduced-motion setting, otherwise on.
+  // Animation preference: on unless this visitor has turned it off before.
+  // Set before first paint so the background never starts and then stops.
   (function () {
     var v = 'on';
     try {
       var stored = localStorage.getItem('anim');
       if (stored === 'on' || stored === 'off') v = stored;
-      else if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) v = 'off';
     } catch (e) {}
     document.documentElement.dataset.anim = v;
   })();
