@@ -117,6 +117,40 @@
   // the link simply did nothing -- which is what made the buttons look dead.
   // Instead each navigation takes a ticket and a stale response is discarded,
   // so a second click supersedes the first rather than being dropped.
+  // ---- analytics hooks ---------------------------------------------------
+  //
+  // Nothing is loaded from here: these only forward to a provider if one has
+  // been added to the pages.  They exist because soft navigation breaks the
+  // usual assumption that a pageview equals a script load -- moving between
+  // pages no longer loads anything, so without this every visit would count as
+  // a single pageview however much of the site someone read.
+  function trackPageview() {
+    try {
+      var path = location.pathname + location.search;
+      if (window.goatcounter && window.goatcounter.count) {
+        window.goatcounter.count({ path: path, title: document.title, event: false });
+      } else if (typeof window.plausible === 'function') {
+        window.plausible('pageview', { u: location.href });
+      } else if (typeof window.gtag === 'function') {
+        window.gtag('event', 'page_view', { page_path: path, page_title: document.title });
+      }
+    } catch (e) {}
+  }
+
+  // Outbound links, the CV and the paper links are the things worth counting on
+  // a page like this -- they are what someone does instead of reading on.
+  function trackEvent(name) {
+    try {
+      if (window.goatcounter && window.goatcounter.count) {
+        window.goatcounter.count({ path: name, title: name, event: true });
+      } else if (typeof window.plausible === 'function') {
+        window.plausible(name);
+      } else if (typeof window.gtag === 'function') {
+        window.gtag('event', 'click', { link_url: name });
+      }
+    } catch (e) {}
+  }
+
   var navToken = 0;
 
   // Over file:// a fetch of a sibling page is blocked as a cross-origin
@@ -152,6 +186,7 @@
         if (push) history.pushState({ soft: true }, '', url);
         window.scrollTo(0, 0);
         initReveals();
+        trackPageview();          // the provider's own script only sees the first load
       })
       .catch(function (err) {
         // Last resort only: a full load, which does reset the background.  Say
@@ -165,16 +200,21 @@
   }
 
   document.addEventListener('click', function (e) {
-    if (!canSoftNavigate) return;
     if (e.defaultPrevented || e.button !== 0) return;
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     var a = e.target && e.target.closest ? e.target.closest('a') : null;
     if (!a || !a.href) return;
-    if (a.target && a.target !== '_self') return;
-    if (a.hasAttribute('download')) return;
 
     var url;
     try { url = new URL(a.href, location.href); } catch (err) { return; }
+
+    // Count what someone leaves for, whether or not the click is intercepted.
+    if (url.origin !== location.origin) trackEvent('outbound: ' + url.host + url.pathname);
+    else if (/\.pdf$/i.test(url.pathname)) trackEvent('cv: ' + url.pathname);
+
+    if (!canSoftNavigate) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (a.target && a.target !== '_self') return;
+    if (a.hasAttribute('download')) return;
     if (url.origin !== location.origin) return;
     // Leave in-page anchors and anything that is not one of these pages --
     // the CV is a PDF and should open the way the browser wants to open it.
