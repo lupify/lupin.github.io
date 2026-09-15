@@ -21,6 +21,11 @@ that happens.
 
 Light/dark theme follows the visitor's system preference and falls back to dark.
 
+Visits are counted with GoatCounter (https://lupify.goatcounter.com). Every page
+needs its tag in the `<head>`; that tag counts the pageview it loads on, and
+`site.js` counts the soft navigations after it, along with outbound and CV
+clicks. Both are no-ops if the script is blocked.
+
 ## Background simulations
 
 `background.js` runs one of four simulations in plain JavaScript -- no WebGL,

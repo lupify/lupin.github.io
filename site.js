@@ -133,38 +133,34 @@
   // the link simply did nothing -- which is what made the buttons look dead.
   // Instead each navigation takes a ticket and a stale response is discarded,
   // so a second click supersedes the first rather than being dropped.
-  // ---- analytics hooks ---------------------------------------------------
+  // ---- analytics ---------------------------------------------------------
   //
-  // Nothing is loaded from here: these only forward to a provider if one has
-  // been added to the pages.  They exist because soft navigation breaks the
-  // usual assumption that a pageview equals a script load -- moving between
-  // pages no longer loads anything, so without this every visit would count as
-  // a single pageview however much of the site someone read.
+  // GoatCounter, loaded from each page's <head>.  Its own script counts the
+  // pageview it loads on; everything below is for what happens after, because
+  // soft navigation breaks the assumption that a pageview equals a script load
+  // -- moving between pages loads nothing, so without this a visit would count
+  // as one pageview however much of the site someone read.
+  //
+  // Both are no-ops if the script is absent or blocked.
+  function gc() {
+    return window.goatcounter && window.goatcounter.count ? window.goatcounter : null;
+  }
+
   function trackPageview() {
+    var g = gc();
+    if (!g) return;
     try {
-      var path = location.pathname + location.search;
-      if (window.goatcounter && window.goatcounter.count) {
-        window.goatcounter.count({ path: path, title: document.title, event: false });
-      } else if (typeof window.plausible === 'function') {
-        window.plausible('pageview', { u: location.href });
-      } else if (typeof window.gtag === 'function') {
-        window.gtag('event', 'page_view', { page_path: path, page_title: document.title });
-      }
+      g.count({ path: location.pathname + location.search, title: document.title,
+                event: false });
     } catch (e) {}
   }
 
-  // Outbound links, the CV and the paper links are the things worth counting on
-  // a page like this -- they are what someone does instead of reading on.
+  // Outbound links and the CV are worth counting on a page like this: they are
+  // what someone does instead of reading on.
   function trackEvent(name) {
-    try {
-      if (window.goatcounter && window.goatcounter.count) {
-        window.goatcounter.count({ path: name, title: name, event: true });
-      } else if (typeof window.plausible === 'function') {
-        window.plausible(name);
-      } else if (typeof window.gtag === 'function') {
-        window.gtag('event', 'click', { link_url: name });
-      }
-    } catch (e) {}
+    var g = gc();
+    if (!g) return;
+    try { g.count({ path: name, title: name, event: true }); } catch (e) {}
   }
 
   var navToken = 0;
